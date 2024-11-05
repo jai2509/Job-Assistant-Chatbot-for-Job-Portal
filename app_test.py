@@ -69,7 +69,7 @@ def main():
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
-    st.header("Chat with PDFs :books:")
+    st.header("Chat with job assistant  :books:")
     user_question = st.text_input("Ask a question about your Resume :")
     if user_question:
         handle_userinput(user_question)
