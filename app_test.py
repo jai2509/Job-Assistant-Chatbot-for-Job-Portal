@@ -31,6 +31,17 @@ css = """
         }
     </style>
 """
+user_template = """
+    <div style="background-color: #333; color: #FFFFFF; padding: 12px; border-radius: 8px; margin: 10px 0; max-width: 80%;">
+        <p style="margin: 0; font-family: Arial, sans-serif; font-size: 16px;">{{MSG}}</p>
+    </div>
+"""
+
+bot_template = """
+    <div style="background-color: #444; color: #FFFFFF; padding: 12px; border-radius: 8px; margin: 10px 0; max-width: 80%;">
+        <p style="margin: 0; font-family: Arial, sans-serif; font-size: 16px;">{{MSG}}</p>
+    </div>
+"""
 
 # Initialize the GROQ chat model
 def init_groq_model():
@@ -122,6 +133,7 @@ def handle_userinput(user_question):
         response = st.session_state.conversation({'question': user_question})
         st.session_state.chat_history = response['chat_history']
         for i, message in enumerate(st.session_state.chat_history):
+            # Use the defined templates
             template = user_template if i % 2 == 0 else bot_template
             st.write(template.replace("{{MSG}}", message.content), unsafe_allow_html=True)
     else:
