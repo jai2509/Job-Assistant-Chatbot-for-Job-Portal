@@ -1,7 +1,7 @@
 # Job Assistant Chatbot for Job Portal (Minor Project)
 
 ## Overview
-This is a **Job Assistant Chatbot** designed to help users find job recommendations based on their resumes. It leverages **Large Language Models (LLMs)** and is implemented using **Retrieval-Augmented Generation (RAG)**. The chatbot processes resumes, extracts relevant job-related skills, and provides job suggestions accordingly.
+This is a **Job Assistant Chatbot** designed to help users find job recommendations based on their resumes. It leverages **Large Language Models (LLMs)** and is implemented using **Retrieval-Augmented Generation (RAG)**. The chatbot processes resumes, extracts any relevant job-related skills, and provides job suggestions accordingly.
 
 ## Team & Contributors
 This project was developed as part of our **Minor Project Submission** by the following team members:
