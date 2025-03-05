@@ -18,6 +18,31 @@ load_dotenv()
 # Set tokenizers parallelism to false for compatibility
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
+# Define CSS for styling
+css = """
+    <style>
+        .css-18e3tb2 {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+        }
+        .stButton > button {
+            color: #ffffff;
+            background-color: #4CAF50;
+        }
+    </style>
+"""
+user_template = """
+    <div style="background-color: #333; color: #FFFFFF; padding: 12px; border-radius: 8px; margin: 10px 0; max-width: 80%;">
+        <p style="margin: 0; font-family: Arial, sans-serif; font-size: 16px;">{{MSG}}</p>
+    </div>
+"""
+
+bot_template = """
+    <div style="background-color: #444; color: #FFFFFF; padding: 12px; border-radius: 8px; margin: 10px 0; max-width: 80%;">
+        <p style="margin: 0; font-family: Arial, sans-serif; font-size: 16px;">{{MSG}}</p>
+    </div>
+"""
+
 # Initialize the GROQ chat model
 def init_groq_model():
     groq_api_key = os.getenv("GROQ_API_KEY")
@@ -27,7 +52,7 @@ def init_groq_model():
 
 llm_groq = init_groq_model()
 
-# Extract PDF text from multiple documents
+# Extract PDF text
 def get_pdf_text(pdf_docs):
     text = ""
     for pdf in pdf_docs:
@@ -58,7 +83,7 @@ def get_conversation_chain(vectorstore):
         llm=llm_groq, retriever=vectorstore.as_retriever(), memory=memory
     )
 
-# Extract job-related keywords from multiple resumes
+# Extract job-related keywords from resume text
 def extract_job_features(text):
     skills = re.findall(r'\b(Java|Python|Data Science|Machine Learning|Deep Learning|Software Engineer|Data Engineer|AI|NLP|C\+\+|SQL|TensorFlow|Keras)\b', text, re.IGNORECASE)
     titles = re.findall(r'\b(Engineer|Data Scientist|Developer|Manager|Analyst|Consultant)\b', text, re.IGNORECASE)
@@ -96,7 +121,7 @@ def get_job_recommendations(features):
 
 # Function to clean and format job description text
 def clean_job_description(description):
-    description = re.sub(r'&nbsp;|&#39;|<[^>]+>', '', description)
+    description = re.sub(r'&nbsp;|&#39;|<[^>]+>', '', description)  # Remove HTML entities and tags
     relevant_info = re.findall(r'\b(?:Python|Java|TensorFlow|Keras|Machine Learning|AI|NLP|Deep Learning|Engineer|Data Scientist|Developer|Analyst)\b', description, re.IGNORECASE)
     for word in relevant_info:
         description = re.sub(r'\b' + re.escape(word) + r'\b', f"**{word}**", description)
@@ -107,13 +132,16 @@ def handle_userinput(user_question):
     if st.session_state.conversation:
         response = st.session_state.conversation({'question': user_question})
         st.session_state.chat_history = response['chat_history']
-        for message in st.session_state.chat_history:
-            st.write(message.content)
+        for i, message in enumerate(st.session_state.chat_history):
+            # Use the defined templates
+            template = user_template if i % 2 == 0 else bot_template
+            st.write(template.replace("{{MSG}}", message.content), unsafe_allow_html=True)
     else:
         st.warning("Please upload and process your documents first.")
 
 def main():
     st.set_page_config(page_title="Chat with Job-Assistant", page_icon=":books:")
+    st.write(css, unsafe_allow_html=True)
 
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
@@ -131,7 +159,7 @@ def main():
             handle_userinput(user_question)
 
         st.sidebar.subheader("Your documents")
-        pdf_docs = st.sidebar.file_uploader("Upload your resumes in PDF form here and click on 'Process'", accept_multiple_files=True)
+        pdf_docs = st.sidebar.file_uploader("Upload your resume in PDF form here and click on 'Process'", accept_multiple_files=True)
         if st.sidebar.button("Process"):
             if pdf_docs:
                 with st.spinner("Processing..."):
@@ -143,7 +171,7 @@ def main():
 
                         job_features = extract_job_features(raw_text)
                         st.session_state.job_recommendations = get_job_recommendations(job_features)
-                        st.success("Documents processed and job recommendations updated.")
+                        st.success("Document processed and job recommendations updated.")
                     except Exception as e:
                         st.error(f"Error processing documents: {e}")
             else:
